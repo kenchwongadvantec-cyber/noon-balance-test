@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>午時評述 Noon Balance | Professional Edition</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&display=swap');
+body { background: #0b0e1a; color: #e2e8f0; font-family: 'Noto Serif TC', serif; }
+.gold-text { background: linear-gradient(to right, #fde047, #ca8a04); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.bazi-card { background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(234, 179, 8, 0.3); border-radius: 2.5rem; backdrop-filter: blur(10px); }
+.input-box { background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(234, 179, 8, 0.15); border-radius: 1rem; color: white; padding: 12px 20px; width: 100%; transition: 0.3s; }
+.input-box:focus { border-color: #ca8a04; outline: none; background: rgba(15, 23, 42, 0.9); }
+.btn-main { background: linear-gradient(180deg, #fde047 0%, #ca8a04 100%); color: #1a1a1a; font-weight: bold; border-radius: 1.5rem; transition: all 0.3s; }
+.btn-main:active { transform: scale(0.98); opacity: 0.9; }
+.label-style { color: #ca8a04; font-size: 13px; margin-bottom: 8px; display: block; opacity: 0.8; }
+.highlight { color: #fde047; font-weight: bold; }
+</style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-6">
+
+<!-- Header -->
+<div class="text-center mt-4 mb-10">
+<h1 class="text-3xl tracking-[0.4em] gold-text font-bold mb-1">午 時 評 述</h1>
+<p class="text-[10px] text-gray-500 tracking-[0.2em] uppercase">Noon Balance Professional Edition</p>
+</div>
+
+<div class="max-w-md w-full space-y-6">
+<!-- Input Section -->
+<div class="bazi-card p-8">
+<p class="text-[10px] bg-slate-800 text-gray-400 px-3 py-1 rounded-full w-fit mb-6">基礎資料</p>
+
+<div class="space-y-6">
+<div class="grid grid-cols-2 gap-4">
+<div>
+<input type="text" id="name" placeholder="Ken" class="input-box">
+</div>
+<div>
+<select id="gender" class="input-box">
+<option value="男">乾造 (男)</option>
+<option value="女">坤造 (女)</option>
+</select>
+</div>
+</div>
+
+<input type="text" id="location" placeholder="Hong Kong" class="input-box text-center">
+
+<div class="flex items-center gap-2">
+<input type="date" id="date" value="1981-06-28" class="input-box flex-1">
+<input type="number" id="hour" value="13" class="input-box w-20 text-center">
+<input type="number" id="min" value="00" class="input-box w-20 text-center">
+</div>
+</div>
+</div>
+
+<!-- Category Section -->
+<div class="bazi-card p-8 border-yellow-500/50 border-2">
+<p class="text-[10px] bg-yellow-900/40 text-yellow-500 px-3 py-1 rounded-full w-fit mb-4">專業鑑定範疇</p>
+<select id="category" class="input-box bg-slate-900/80 border-none text-sm">
+<option value="綜合氣場鑑定">🔮 綜合氣場鑑定 (免費試閱)</option>
+<option value="男女情緣配對">❤️ 男女情緣配對</option>
+<option value="十年大運展望">⏳ 十年大運展望</option>
+</select>
+</div>
+
+<!-- Action Button -->
+<button onclick="run()" id="mainBtn" class="w-full btn-main py-5 text-lg shadow-[0_0_20px_rgba(202,138,4,0.3)]">
+啟動天星磁場鑑定
+</button>
+
+<!-- Result Section -->
+<div id="res-area" class="hidden space-y-6">
+<div class="bazi-card p-8 relative">
+<div class="flex justify-between items-center mb-6">
+<span class="text-yellow-600 text-xs font-bold">鑑定批示</span>
+<span id="res-time" class="text-[9px] text-gray-600"></span>
+</div>
+<div id="output" class="text-gray-300 leading-8 text-sm whitespace-pre-line"></div>
+</div>
+
+<!-- 🛡️ 測試員回饋報告 (隱藏直到鑑定完成) -->
+<div id="report-card" class="bazi-card p-6 border-dashed border-yellow-700/50 bg-black/20">
+<p class="text-[10px] text-yellow-600 font-bold mb-4 tracking-widest text-center">🛡️ 測試員深度回饋報表</p>
+<div class="space-y-4">
+<select id="q-score" class="input-box text-xs py-2">
+<option value="5">⭐⭐⭐⭐⭐ 邏輯準確，符合專業</option>
+<option value="3">⭐⭐⭐ AI 感較重，內容尚可</option>
+<option value="1">⭐ 內容敷衍或有明顯錯誤</option>
+</select>
+<textarea id="q-feedback" placeholder="這段回覆哪裡好？哪裡需要改進？" class="input-box text-xs h-20"></textarea>
+<button onclick="saveLog()" class="w-full py-2 bg-yellow-600/10 border border-yellow-600/40 text-yellow-500 text-xs rounded-lg">儲存並記錄測試數據</button>
+<p id="log-status" class="text-[9px] text-center text-gray-600"></p>
+</div>
+</div>
+</div>
+
+<p class="text-[9px] text-gray-700 text-center py-10 tracking-widest">
+© 2026 NOON BALANCE · 埃及曆法與子平八字之合
+</p>
+</div>
+
+<!-- 腳本邏輯 -->
+<script>
+const _K = "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"; // 您的原版 Key
+
+async function run() {
+const btn = document.getElementById('mainBtn');
+const output = document.getElementById('output');
+const resArea = document.getElementById('res-area');
+
+btn.innerText = "正在連結磁場...";
+btn.disabled = true;
+resArea.classList.remove('hidden');
+output.innerHTML = "正在解析星盤...";
+document.getElementById('res-time').innerText = "上午 " + new Date().toLocaleTimeString();
+
+try {
+const prompt = `你是大師。姓名：${document.getElementById('name').value}，性別：${document.getElementById('gender').value}，出生：${document.getElementById('date').value} ${document.getElementById('hour').value}點。項目：${document.getElementById('category').value}。請給予專業鑑定。`;
+
+const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+method: "POST",
+headers: { "Authorization": "Bearer " + _K, "Content-Type": "application/json" },
+body: JSON.stringify({
+"model": "meta-llama/llama-3.1-70b-instruct",
+"messages": [{ "role": "user", "content": prompt }]
+})
+});
+
+const data = await resp.json();
+const text = data.choices[0].message.content;
+output.innerHTML = text.replace(/(格局|吉|凶|運|注意|格局)/g, '<span class="highlight">$1</span>');
+
+// 捲動到結果區
+window.scrollTo({ top: resArea.offsetTop, behavior: 'smooth' });
+
+} catch (e) {
+output.innerHTML = "磁場連結不穩，請檢查網路或稍後再試。";
+} finally {
+btn.innerText = "啟動天星磁場鑑定";
+btn.disabled = false;
+}
+}
+
+function saveLog() {
+const log = {
+time: new Date().toLocaleString(),
+score: document.getElementById('q-score').value,
+feedback: document.getElementById('q-feedback').value
+};
+let logs = JSON.parse(localStorage.getItem('beta_logs') || "[]");
+logs.push(log);
+localStorage.setItem('beta_logs', JSON.stringify(logs));
+document.getElementById('log-status').innerText = "✅ 已記錄，辛苦了！目前累計 " + logs.length + " 筆。";
+document.getElementById('q-feedback').value = "";
+}
+</script>
+</body>
+</html>
