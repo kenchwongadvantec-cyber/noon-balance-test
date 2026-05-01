@@ -14,7 +14,6 @@ body { background: #0b0e1a; color: #e2e8f0; font-family: 'Noto Serif TC', serif;
 .input-box:focus { border-color: #ca8a04; outline: none; background: rgba(15, 23, 42, 0.9); }
 .btn-main { background: linear-gradient(180deg, #fde047 0%, #ca8a04 100%); color: #1a1a1a; font-weight: bold; border-radius: 1.5rem; transition: all 0.3s; }
 .btn-main:active { transform: scale(0.98); opacity: 0.9; }
-.label-style { color: #ca8a04; font-size: 13px; margin-bottom: 8px; display: block; opacity: 0.8; }
 .highlight { color: #fde047; font-weight: bold; }
 </style>
 </head>
@@ -30,22 +29,15 @@ body { background: #0b0e1a; color: #e2e8f0; font-family: 'Noto Serif TC', serif;
 <!-- Input Section -->
 <div class="bazi-card p-8">
 <p class="text-[10px] bg-slate-800 text-gray-400 px-3 py-1 rounded-full w-fit mb-6">基礎資料</p>
-
 <div class="space-y-6">
 <div class="grid grid-cols-2 gap-4">
-<div>
-<input type="text" id="name" placeholder="Ken" class="input-box">
-</div>
-<div>
-<select id="gender" class="input-box">
+<div><input type="text" id="name" placeholder="Ken" class="input-box" value="測試員"></div>
+<div><select id="gender" class="input-box">
 <option value="男">乾造 (男)</option>
 <option value="女">坤造 (女)</option>
-</select>
+</select></div>
 </div>
-</div>
-
 <input type="text" id="location" placeholder="Hong Kong" class="input-box text-center">
-
 <div class="flex items-center gap-2">
 <input type="date" id="date" value="1981-06-28" class="input-box flex-1">
 <input type="number" id="hour" value="13" class="input-box w-20 text-center">
@@ -69,7 +61,7 @@ body { background: #0b0e1a; color: #e2e8f0; font-family: 'Noto Serif TC', serif;
 啟動天星磁場鑑定
 </button>
 
-<!-- Result Section -->
+<!-- Result & Report Section -->
 <div id="res-area" class="hidden space-y-6">
 <div class="bazi-card p-8 relative">
 <div class="flex justify-between items-center mb-6">
@@ -79,7 +71,7 @@ body { background: #0b0e1a; color: #e2e8f0; font-family: 'Noto Serif TC', serif;
 <div id="output" class="text-gray-300 leading-8 text-sm whitespace-pre-line"></div>
 </div>
 
-<!-- 🛡️ 測試員回饋報告 (隱藏直到鑑定完成) -->
+<!-- 🛡️ 測試員回饋報告 -->
 <div id="report-card" class="bazi-card p-6 border-dashed border-yellow-700/50 bg-black/20">
 <p class="text-[10px] text-yellow-600 font-bold mb-4 tracking-widest text-center">🛡️ 測試員深度回饋報表</p>
 <div class="space-y-4">
@@ -100,42 +92,52 @@ body { background: #0b0e1a; color: #e2e8f0; font-family: 'Noto Serif TC', serif;
 </p>
 </div>
 
-<!-- 腳本邏輯 -->
 <script>
-const _K = "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"; // 您的原版 Key
+// 使用您在 image_299.png 中提供的最新鎖匙
+const _K = "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";
 
 async function run() {
 const btn = document.getElementById('mainBtn');
 const output = document.getElementById('output');
 const resArea = document.getElementById('res-area');
 
-btn.innerText = "正在連結磁場...";
+btn.innerText = "正在連結 Llama 磁場...";
 btn.disabled = true;
 resArea.classList.remove('hidden');
-output.innerHTML = "正在解析星盤...";
-document.getElementById('res-time').innerText = "上午 " + new Date().toLocaleTimeString();
+output.innerHTML = "正在調用星圖數據 (Llama 3.1)...";
+document.getElementById('res-time').innerText = new Date().toLocaleTimeString();
 
 try {
-const prompt = `你是大師。姓名：${document.getElementById('name').value}，性別：${document.getElementById('gender').value}，出生：${document.getElementById('date').value} ${document.getElementById('hour').value}點。項目：${document.getElementById('category').value}。請給予專業鑑定。`;
+const prompt = `你是精通中國八字與埃及曆法的命理大師。受測者：${document.getElementById('name').value}，性別：${document.getElementById('gender').value}。項目：${document.getElementById('category').value}。請給予專業鑑定（約150字）。`;
 
 const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
 method: "POST",
-headers: { "Authorization": "Bearer " + _K, "Content-Type": "application/json" },
+headers: {
+"Authorization": "Bearer " + _K,
+"Content-Type": "application/json",
+"HTTP-Referer": window.location.href
+},
 body: JSON.stringify({
+// 改回 Llama 模型以適應香港連線環境
 "model": "meta-llama/llama-3.1-70b-instruct",
 "messages": [{ "role": "user", "content": prompt }]
 })
 });
 
 const data = await resp.json();
-const text = data.choices[0].message.content;
-output.innerHTML = text.replace(/(格局|吉|凶|運|注意|格局)/g, '<span class="highlight">$1</span>');
 
-// 捲動到結果區
+if (data.choices && data.choices[0]) {
+const text = data.choices[0].message.content;
+// 完美版的高亮顯示邏輯
+output.innerHTML = text.replace(/(格局|吉|凶|運|注意|命|氣場)/g, '<span class="highlight">$1</span>');
+} else {
+throw new Error("數據格式異常");
+}
+
 window.scrollTo({ top: resArea.offsetTop, behavior: 'smooth' });
 
 } catch (e) {
-output.innerHTML = "磁場連結不穩，請檢查網路或稍後再試。";
+output.innerHTML = "磁場連結不穩，請檢查 OpenRouter 餘額或鎖匙是否正確。";
 } finally {
 btn.innerText = "啟動天星磁場鑑定";
 btn.disabled = false;
